@@ -21,3 +21,16 @@ Usage :
 
 Auteur : AI + GPT-4
 """
+Model : SVM + Dataset aveec environ 5000 mails 
+
+source du dataset : https://www.kaggle.com/datasets/ashfakyeafi/spam-email-classification?select=email.csv
+Accuracy: 0.9839
+              precision    recall  f1-score   support
+
+           0       0.98      1.00      0.99       966
+           1       0.99      0.89      0.94       149
+
+    accuracy                           0.98      1115
+   macro avg       0.99      0.94      0.96      1115
+weighted avg       0.98      0.98      0.98      1115
+
