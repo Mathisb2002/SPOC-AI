@@ -1,6 +1,4 @@
 
-# Imports nécessaires
-
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import numpy as np
@@ -22,7 +20,7 @@ def predict(text: str):
     - Le score de confiance (probabilité)
     """
     # Prétraitement et tokenization
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     with torch.no_grad():
         outputs = model(**inputs)
         probs = torch.softmax(outputs.logits, dim=1).numpy()[0]
@@ -37,3 +35,4 @@ def predict(text: str):
 def gradio_predict(text):
     label, confidence = predict(text)
     return f"{label}\n\nScore de confiance : {confidence:.2%}"
+

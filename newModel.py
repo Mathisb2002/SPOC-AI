@@ -38,12 +38,12 @@ def testMetrics(X_test_vec, y_test):
     print(f'Accuracy: {accuracy_score(y_test, y_pred):.4f}')
     print(classification_report(y_test, y_pred))
 
-def predict_spam(email_text):
+def predict_spam_svm(email_text):
     model = joblib.load('models/svm_spam_model.joblib')
     vectorizer = joblib.load('models/vectorizer.joblib')
 
     # on prétraite notre texte (transformation en vecteur, vider les stop words ...)
-    vectorized_text = vectorizer.transform([email_text])
+    vectorized_text = vectorizer.transform([email_text]).toarray()
 
     # on utilise notre modèle entrainé pour prédire si un mail est spam or ham
     prediction = model.predict(vectorized_text)[0]
@@ -53,9 +53,9 @@ def predict_spam(email_text):
     return f"{label}\n\nScore de confiance : {proba:.2%}"
 
 
-X_train_vec, y_train, X_test_vec, y_test = prepare_data()
+#X_train_vec, y_train, X_test_vec, y_test = prepare_data()
 
-training(X_train_vec, y_train)
+#training(X_train_vec, y_train)
 
-testMetrics(X_test_vec, y_test)
+#testMetrics(X_test_vec, y_test)
 
