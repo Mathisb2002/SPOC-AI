@@ -4,7 +4,7 @@ import torch
 import numpy as np
 
 # Chargement du modèle pré-entraîné (léger et rapide)
-MODEL_NAME = "mrm8488/bert-tiny-finetuned-sms-spam-detection"
+MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
 
@@ -14,6 +14,8 @@ ICONS = ["✅", "⚠️"]
 
 # Fonction de prédiction réutilisable
 def predict(text: str):
+
+
     """
     Prend un texte d'email en entrée et retourne :
     - Le label prédictif (spam ou non)

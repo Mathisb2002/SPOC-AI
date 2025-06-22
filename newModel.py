@@ -48,9 +48,9 @@ def predict_spam_svm(email_text):
     # on utilise notre modèle entrainé pour prédire si un mail est spam or ham
     prediction = model.predict(vectorized_text)[0]
     proba = model.predict_proba(vectorized_text)[0][1]  # Probabilité d'être spam
-
+    proba_confiance = proba if prediction == 1 else 1-proba
     label = 'Spam' if prediction == 1 else 'Ham'
-    return f"{label}\n\nScore de confiance : {proba:.2%}"
+    return f"{label}\n\nScore de confiance : {proba_confiance:.2%}"
 
 
 #X_train_vec, y_train, X_test_vec, y_test = prepare_data()
