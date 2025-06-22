@@ -1,40 +1,43 @@
-
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers_interpret import SequenceClassificationExplainer
 import torch
-import numpy as np
 
-# Chargement du modèle pré-entraîné (léger et rapide)
-MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+# Load model and tokenizer
+model_id = "AntiSpamInstitute/spam-detector-bert-MoE-v2.2"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForSequenceClassification.from_pretrained(model_id)
 
-# Liste des labels du modèle (0 = ham/non-spam, 1 = spam)
-LABELS = ["Email non suspect", "Attention : cet email semble suspect"]
-ICONS = ["✅", "⚠️"]
+# Setup device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+model.eval()
 
-# Fonction de prédiction réutilisable
-def predict(text: str):
-
-
-    """
-    Prend un texte d'email en entrée et retourne :
-    - Le label prédictif (spam ou non)
-    - Le score de confiance (probabilité)
-    """
-    # Prétraitement et tokenization
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+# Prediction function
+def predict_email(text):
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(device)
     with torch.no_grad():
         outputs = model(**inputs)
-        probs = torch.softmax(outputs.logits, dim=1).numpy()[0]
-        pred_idx = int(np.argmax(probs))
-        confidence = float(probs[pred_idx])
-    label = LABELS[pred_idx]
-    icon = ICONS[pred_idx]
-    return f"{icon} {label}", confidence
+        probs = torch.nn.functional.softmax(outputs.logits, dim=1)
 
+    labels = ["legitimate", "phishing"]
+    pred_index = torch.argmax(probs, dim=1).item()
+    confidence = probs[0][pred_index].item()
 
-# Fonction pour Gradio (affiche aussi le score de confiance)
+    return labels[pred_index], round(confidence * 100, 2)  # Return percentage
+
+# Explanation function
+def explain_email(text):
+    explainer = SequenceClassificationExplainer(model=model, tokenizer=tokenizer)
+    label, _ = predict_email(text)
+    label_idx = "LABEL_0" if label == "legitimate" else "LABEL_1"
+    word_attributions = explainer(text, class_name=label_idx)
+    explainer.visualize()
+    return word_attributions
+
+# For Gradio or UI integration
 def gradio_predict(text):
-    label, confidence = predict(text)
-    return f"{label}\n\nScore de confiance : {confidence:.2%}"
+    label, confidence = predict_email(text)
+    return f"Email is classified as '{label}' with {confidence:.2f}% confidence."
 
+def gradio_explain(text):
+    return explain_email(text)
